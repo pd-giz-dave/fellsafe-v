@@ -1,0 +1,22 @@
+# Binaries for programs and plugins
+main
+untitled19
+*.exe
+*.exe~
+*.so
+*.dylib
+*.dll
+
+# volatile stuff
+*.log
+codes/*.png
+media/*.png
+
+# Ignore binary output folders
+bin/
+
+# Ignore common editor/system specific metadata
+.DS_Store
+.idea/
+.vscode/
+*.iml
