@@ -26,8 +26,7 @@ fn test_draw_codeword() {
 	draw_code := fn [mut log] (code int, label string, name string) ! {
 		log.log('')!
 		log.log('Creating code ${code:21b}...')!
-		mut image := canvas.new_grey((max_x_cell + 1) * codes.cell_width, (max_y_cell + 1) * codes.cell_height,
-			consts.min_luminance)
+		mut image := canvas.new_grey((max_x_cell + 1) * codes.cell_width, (max_y_cell + 1) * codes.cell_height)
 		mut kode := new_code(image)
 		kode.draw_codeword(code, label)!
 		log.draw(image: image, file: name)!

@@ -1,14 +1,19 @@
+module consts
+
+import math
+
+// consts - hold-all for constants and types that are used all over the place
+
 // History:
 // 18/04/23 DCN: Created by copying and re-implementing const.py from the kilo-codes Python prototype
 
-module consts
-
-// consts - hold all for constants and types that are used all over the place
+// Empty - use in a sum type when an option is 'nothing'
+pub struct Empty {}
 
 // Point is the x,y co-ordinates of a pixel in some image (the co-ordinates may be fractional)
 pub struct Point {
 pub:
-	x f32
+	x f32 // < 0 means 'empty'
 	y f32
 }
 
@@ -34,9 +39,6 @@ pub:
 	r u8
 }
 
-// Empty - use in a sum type when an option is 'nothing'
-pub struct Empty {}
-
 pub struct MonochromePixel {
 pub:
 	val u8
@@ -44,7 +46,7 @@ pub:
 
 type Colour = ColourPixel | Empty | MonochromePixel
 
-// diagnostic image colours (each is an rgb triplet)
+// diagnostic image colours
 pub const (
 	black       = MonochromePixel{0}
 	grey        = MonochromePixel{128}
@@ -103,7 +105,7 @@ const (
 )
 
 // Blob circle radius modes
-const (
+pub const (
 	radius_mode_inside  = 1
 	radius_mode_mean    = 2
 	radius_mode_outside = 3
@@ -141,3 +143,24 @@ pub const (
 	polynomial    = 0xae3 // discovered by brute force search, has hamming distance of 7
 		// polynomial        = 0xC75  // discovered by brute force search, has hamming distance of 7
 )
+
+// is_empty - test if a point is empty
+fn (p Point) is_empty() bool {
+	return !(p.x > f32(math.min_i16))
+}
+
+// str - format a point in a concise and consistent way
+fn (p Point) str() string {
+	if p.is_empty() {
+		return '(None)'
+	}
+	return '(${p.x:.2f}, ${p.y:.2f})'
+}
+
+// str - format a box in a concise and consistent way
+fn (b Box) str() string {
+	if b.top_left.is_empty() {
+		return '(None)'
+	}
+	return '${b.top_left}..${b.bottom_right}'
+}

@@ -23,7 +23,7 @@ pub fn translate(centre consts.Point, radius f32, origin consts.Point, scale f32
 	} else {
 		return error('Origin must be (-ve,-ve) or (+ve,+ve) not a mixture ${origin}')
 	}
-	return consts.Point{x, y}, radius
+	return consts.Point{x, y}, rad
 }
 
 // line - return a list of points that represent all pixels between x0,y0 and x1,y1 in the order x0,x0 -> x1,y1
@@ -102,6 +102,7 @@ pub fn line(x0 f32, y0 f32, x1 f32, y1 f32) []consts.Point {
 // the co-ordinates returned are suitable for drawing the circle,
 // co-ordinates returned are unique but in a random order,
 // the algorithm here was inspired by: https://www.cs.helsinki.fi/group/goa/mallinnus/ympyrat/ymp1.html
+// https://web.archive.org/web/20120422045142/https://banu.com/blog/7/drawing-circles/
 pub fn circumference(centre_x_in f32, centre_y_in f32, r f32) []consts.Point {
 	centre_x := int(math.round(centre_x_in))
 	centre_y := int(math.round(centre_y_in))
@@ -128,31 +129,32 @@ pub fn circumference(centre_x_in f32, centre_y_in f32, r f32) []consts.Point {
 		//            Plot(-x,y)
 		//        End
 
-		// NB: when a co-ord is 0, x and -x are the same, ditto for y
+		// NB: when x is 0, x and -x are the same, ditto for y, so we can skip some plots
+		//     e.g. plot(x, y) is same as plot(-x, y) when x is 0; et al
 
 		if x == 0 && y == 0 {
 			plot(0, 0)
-		} else if x == 0 {
+		} else if x == 0 { // and y != 0
 			plot(0, y)
 			plot(y, 0)
 			plot(0, -y)
 			plot(-y, 0)
-		} else if y == 0 {
+		} else if y == 0 { // and x != 0
 			plot(x, 0)
 			plot(0, x)
 			plot(0, -x)
 			plot(-x, 0)
-		} else if x == y {
+		} else if x == y { // and x != 0 and y != 0
 			plot(x, x)
 			plot(x, -x)
 			plot(-x, -x)
 			plot(-x, x)
-		} else if x == -y {
+		} else if x == -y { // and x != 0 and y != 0
 			plot(x, -x)
 			plot(-x, x)
 			plot(-x, -x)
 			plot(x, x)
-		} else {
+		} else { // x != y and x !=0 and y !=0
 			plot(x, y)
 			plot(y, x)
 			plot(y, -x)
@@ -182,7 +184,7 @@ pub fn circumference(centre_x_in f32, centre_y_in f32, r f32) []consts.Point {
 
 	mut x := int(math.round(r))
 	if x == 0 {
-		// special case
+		// special case (radius == 0)
 		plot(0, 0)
 	} else {
 		mut y := 0
@@ -204,7 +206,7 @@ pub fn circumference(centre_x_in f32, centre_y_in f32, r f32) []consts.Point {
 	return *points
 }
 
-// intersection - find the intersection point between two lines, each line is a tuple pair of start/end points
+// intersection - find the intersection point between two lines, each line is a pair of start/end points
 // the cells are at the crossing points of the grid lines, we know where each line starts and end, so we can
 // use determinants to find each intersection (see https://en.wikipedia.org/wiki/Line-line_intersection)
 // intersection (Px,Py) between two non-parallel lines (x1,y1 -> x2,y2) and (x3,y3 -> x4,y4) is:

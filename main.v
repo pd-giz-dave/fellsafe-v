@@ -4,18 +4,17 @@
 module main
 
 // main is the glue for the modules in the system
-import canvas
-import consts
 import os
-import draw
+import canvas
 
-fn test_intersection() ! {
-	line1 := consts.Line{consts.Point{10, 10}, consts.Point{20, 20}}
-	line2 := consts.Line{consts.Point{10, 20}, consts.Point{20, 10}}
-	cross_at := draw.intersection(line1, line2)
-	assert cross_at == consts.Point{15, 15}
+fn test_load_unload() ! {
+	in_file := 'media/close-150-257-263-380-436-647-688-710-777.jpg'
+	out_file := in_file.all_before_last('.') + '.png'
+	buffer := canvas.load(in_file)!
+	buffer.unload(out_file)!
+	assert os.exists(out_file)
 }
 
 fn main() {
-	test_intersection()!
+	test_load_unload()!
 }

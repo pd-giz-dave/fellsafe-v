@@ -29,7 +29,7 @@ fn test_greyscale() {
 
 fn test_integrate() {
 	width, height := 4000, 2000
-	mut image := new_grey(width, height, 0)
+	mut image := new_grey(width, height)
 	for x in 0 .. width {
 		for y in 0 .. height {
 			image.put_pixel(x, y, consts.Colour(consts.MonochromePixel{1}))!
@@ -77,7 +77,7 @@ fn test_extract() {
 	box_x, box_y := full_width / 4, full_height / 4
 	box := consts.Box{consts.Point{box_x, box_y}, consts.Point{box_x + box_width - 1, box_y +
 		box_height - 1}}
-	mut full_image := new_grey(full_width, full_height, 0)
+	mut full_image := new_grey(full_width, full_height)
 	for x in 0 .. full_width {
 		for y in 0 .. full_height {
 			full_image.put_pixel(x, y, pixel_value(x, y))!
@@ -106,14 +106,16 @@ fn test_upsize() {
 
 fn test_drawing() {
 	out_file := 'drawing.png'
-	greyscale := new_grey(500, 500, 0)
+	greyscale := new_grey(500, 500)
 	step1 := greyscale.set_text('The quick brown fox jumps over the lazy dog! - 0.123456789',
 		consts.Point{10, 10}, consts.red)!
 	step2 := step1.line(consts.Point{10, 20}, consts.Point{90, 30}, consts.green)!
-	step3 := step2.circle(consts.Point{40, 40}, 20, consts.blue)!
-	step4 := step3.rectangle(consts.Box{consts.Point{100, 100}, consts.Point{120, 120}},
+	step3 := step2.circle(consts.Point{40, 40}, 24, consts.blue)!
+	step4 := step3.circle(consts.Point{40, 40}, 8, consts.blue)!
+	step5 := step4.circle(consts.Point{40, 40}, 4, consts.blue)!
+	step6 := step5.rectangle(consts.Box{consts.Point{100, 100}, consts.Point{120, 120}},
 		consts.magenta)!
-	step4.unload(out_file)!
+	step6.unload(out_file)!
 	assert os.exists(out_file)
 	println('Written ${out_file}')
 }

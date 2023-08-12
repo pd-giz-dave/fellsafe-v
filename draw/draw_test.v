@@ -6,7 +6,7 @@ import consts
 fn test_line() {
 	check_line := fn (x0 f32, y0 f32, x1 f32, y1 f32, name string) {
 		points := line(x0, y0, x1, y1)
-		print('Test_line for ${name}: ')
+		print('test_line for ${name}: ')
 		assert points.first() == consts.Point{x0, y0} && points.last() == consts.Point{x1, y1}
 	}
 	check_line(0, 0, 0, -10, 'N')
@@ -37,7 +37,8 @@ fn test_line() {
 
 fn test_circumference() {
 	points := circumference(20, 20, 10)
-	// print('${points.len} ${points.first()} ${points.last()}')
+	println('test_circumference: points:${points.len} first:${points.first()} last:${points.last()}')
+	print('test_circumference: ')
 	assert points.len == 56 && points.first() == consts.Point{30, 20}
 		&& points.last() == consts.Point{13, 27}
 	// print('Circumference points: ${points}')
@@ -52,6 +53,7 @@ fn test_translate() {
 	reduced_centre, reduced_radius := translate(centre, radius, full_origin, scale)!
 	increased_centre, increased_radius := translate(reduced_centre, reduced_radius, sub_origin,
 		scale)!
+	print('test_translate: ')
 	assert increased_centre == centre && increased_radius == radius
 }
 
@@ -59,6 +61,7 @@ fn test_intersection() {
 	line1 := consts.Line{consts.Point{10, 10}, consts.Point{20, 20}}
 	line2 := consts.Line{consts.Point{10, 20}, consts.Point{20, 10}}
 	cross_at := intersection(line1, line2)
+	print('test_intersection: ')
 	assert cross_at == consts.Point{15, 15}, 'Intersects at ${cross_at} when expect ${consts.Point{15, 15}}'
 }
 
@@ -75,7 +78,7 @@ fn test_extend() {
 		error_end_x *= error_end_x
 		mut error_end_y := extended.end.y - expect_end.y
 		error_end_y *= error_end_y
-		print('Test_extend for ${name}: ')
+		print('test_extend for ${name}: ')
 		assert error_start_x <= error_allowed_squared && error_end_x <= error_allowed_squared
 			&& error_start_y <= error_allowed_squared && error_end_y <= error_allowed_squared,
 			'${name}: ${start} -> ${end} extends to ${extended.start} -> ${extended.end} when expected ${expect_start} -> ${expect_end}' +

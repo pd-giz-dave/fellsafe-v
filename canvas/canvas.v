@@ -84,18 +84,18 @@ pub fn (buffer Buffer) greyscale() Buffer {
 pub fn (buffer Buffer) get_pixel(x int, y int) consts.Colour {
 	match buffer.channels {
 		1 {
-			return consts.Colour(consts.MonochromePixel{buffer.pixels[(y * buffer.width) + x]})
+			return consts.MonochromePixel{buffer.pixels[(y * buffer.width) + x]}
 		}
 		3 {
 			pixel_address := ((y * buffer.width) + x) * buffer.channels
-			return consts.Colour(consts.ColourPixel{
+			return consts.ColourPixel{
 				r: buffer.pixels[pixel_address + 0]
 				g: buffer.pixels[pixel_address + 1]
 				b: buffer.pixels[pixel_address + 2]
-			})
+			}
 		}
 		else {
-			return consts.Colour(consts.Empty{})
+			return consts.Empty{}
 		}
 	}
 }
@@ -137,14 +137,14 @@ pub fn (buffer Buffer) clone() Buffer {
 	return new_buffer
 }
 
-// new_grey create a new monochrome buffer of the given size and initialised to the given value
-pub fn new_grey(width int, height int, colour consts.MonochromePixel) Buffer {
+// new_grey create a new monochrome buffer of the given size and initialised to black
+pub fn new_grey(width int, height int) Buffer {
 	image_size := width * height
 	mut buffer := Buffer{
 		width: width
 		height: height
 		channels: 1
-		pixels: []u8{len: image_size, cap: image_size, init: colour.val}
+		pixels: []u8{len: image_size, cap: image_size, init: consts.black.val}
 	}
 	return buffer
 }
@@ -241,7 +241,7 @@ pub fn (buffer Buffer) downsize(new_width int) !Buffer {
 	kernel_minus_y := kernel_plus_y - 1 // ..
 	// do the downsize via the integral
 	integral := buffer.integrate()
-	mut downsized := new_grey(new_width, new_height, consts.min_luminance)
+	mut downsized := new_grey(new_width, new_height)
 	for x in 0 .. new_width {
 		orig_x := int(math.min(x * width_scale, width - 1)) // need int() 'cos width_scale is a f32
 		orig_x1 := math.max(orig_x - kernel_minus_x, 0)
@@ -281,7 +281,7 @@ pub fn (buffer Buffer) blur(kernel_size int) !Buffer {
 	kernel_minus := kernel_size - 1 // offset for going backward
 
 	// blur the image by averaging over the given kernel size
-	mut blurred := new_grey(width, height, consts.min_luminance)
+	mut blurred := new_grey(width, height)
 	for x in 0 .. width {
 		x1 := math.max(x - kernel_minus, 0)
 		x2 := math.min(x + kernel_plus, width - 1)
@@ -335,7 +335,7 @@ pub fn (buffer Buffer) binarize(p BinarizeParams) !Buffer {
 	integral := buffer.integrate(box: p.box)
 
 	// region do the threshold on a new image buffer...
-	mut binary := new_grey(box_width, box_height, consts.min_luminance)
+	mut binary := new_grey(box_width, box_height)
 	black_limit := (100.0 - p.black) / 100.0 // convert % to a ratio
 	white_limit := if p.white >= math.max_i16 {
 		black_limit
@@ -408,7 +408,7 @@ pub fn (buffer Buffer) extract(box consts.Box) !Buffer {
 	tl_x, tl_y, br_x, br_y := buffer.get_box_corners(box: box)
 	width := br_x - tl_x + 1
 	height := br_y - tl_y + 1
-	mut extracted := new_grey(width, height, consts.min_luminance)
+	mut extracted := new_grey(width, height)
 	for x in 0 .. width {
 		for y in 0 .. height {
 			extracted.put_pixel(x, y, buffer.get_pixel(tl_x + x, tl_y + y))!
@@ -504,7 +504,7 @@ pub fn (buffer Buffer) upsize(scale f32) !Buffer {
 	max_x, max_y := buffer.size()
 	width := int(math.round(max_x * scale))
 	height := int(math.round(max_y * scale))
-	mut upsized := new_grey(width, height, consts.min_luminance)
+	mut upsized := new_grey(width, height)
 	for dest_x in 0 .. width {
 		src_x := f32(dest_x) / scale
 		for dest_y in 0 .. height {
