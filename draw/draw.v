@@ -8,8 +8,8 @@ import consts
 // if origin is +ve map from a full-image to a sub-image (an extraction from the full image),
 // if origin is -ve map from a sub-image to a full-image,
 // relative to (0,0) to be relative to origin and scale it by scale
-pub fn translate(centre consts.Point, radius f32, origin consts.Point, scale f32) !(consts.Point, f32) {
-	mut x, mut y, mut rad := f32(0), f32(0), radius
+pub fn translate(centre consts.Point, radius f64, origin consts.Point, scale f64) !(consts.Point, f64) {
+	mut x, mut y, mut rad := f64(0), f64(0), radius
 	if origin.x < 0 && origin.y < 0 {
 		// map from a sub-image to a full-image
 		x = (centre.x / scale) - origin.x
@@ -27,7 +27,7 @@ pub fn translate(centre consts.Point, radius f32, origin consts.Point, scale f32
 }
 
 // line - return a list of points that represent all pixels between x0,y0 and x1,y1 in the order x0,x0 -> x1,y1
-pub fn line(x0 f32, y0 f32, x1 f32, y1 f32) []consts.Point {
+pub fn line(x0 f64, y0 f64, x1 f64, y1 f64) []consts.Point {
 	// see https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm for the algorithm implemented here
 
 	line_low := fn (x0 int, y0 int, x1 int, y1 int) []consts.Point {
@@ -103,7 +103,7 @@ pub fn line(x0 f32, y0 f32, x1 f32, y1 f32) []consts.Point {
 // co-ordinates returned are unique but in a random order,
 // the algorithm here was inspired by: https://www.cs.helsinki.fi/group/goa/mallinnus/ympyrat/ymp1.html
 // https://web.archive.org/web/20120422045142/https://banu.com/blog/7/drawing-circles/
-pub fn circumference(centre_x_in f32, centre_y_in f32, r f32) []consts.Point {
+pub fn circumference(centre_x_in f64, centre_y_in f64, r f64) []consts.Point {
 	centre_x := int(math.round(centre_x_in))
 	centre_y := int(math.round(centre_y_in))
 
@@ -280,7 +280,7 @@ pub fn extend(line consts.Line, box consts.Box) !consts.Line {
 		}
 	}
 
-	extend_down := fn [xmin, ymin, xmax, ymax] (x1 f32, y1 f32, x2 f32, y2 f32) (consts.Point, consts.Point) {
+	extend_down := fn [xmin, ymin, xmax, ymax] (x1 f64, y1 f64, x2 f64, y2 f64) (consts.Point, consts.Point) {
 		// heading towards bottom-right
 		// we use similar triangles to work it out, like so:
 		//  _____
@@ -326,7 +326,7 @@ pub fn extend(line consts.Line, box consts.Box) !consts.Line {
 		}
 		return start, end
 	}
-	extend_up := fn [xmin, ymin, xmax, ymax] (x1 f32, y1 f32, x2 f32, y2 f32) (consts.Point, consts.Point) {
+	extend_up := fn [xmin, ymin, xmax, ymax] (x1 f64, y1 f64, x2 f64, y2 f64) (consts.Point, consts.Point) {
 		// heading towards top-right
 		// we use similar triangles to work it out, like so:
 		//  Line segment is x--x

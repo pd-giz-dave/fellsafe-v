@@ -4,7 +4,7 @@ import consts
 
 [assert_continues]
 fn test_line() {
-	check_line := fn (x0 f32, y0 f32, x1 f32, y1 f32, name string) {
+	check_line := fn (x0 f64, y0 f64, x1 f64, y1 f64, name string) {
 		points := line(x0, y0, x1, y1)
 		print('test_line for ${name}: ')
 		assert points.first() == consts.Point{x0, y0} && points.last() == consts.Point{x1, y1}
@@ -68,7 +68,7 @@ fn test_intersection() {
 [assert_continues]
 fn test_extend() {
 	check_extend := fn (start consts.Point, end consts.Point, box consts.Box, name string, expect_start consts.Point, expect_end consts.Point) ! {
-		error_allowed_squared := f32(1) // max squared error tolerated
+		error_allowed_squared := f64(1) // max squared error tolerated
 		extended := extend(consts.Line{start, end}, box)!
 		mut error_start_x := extended.start.x - expect_start.x
 		error_start_x *= error_start_x

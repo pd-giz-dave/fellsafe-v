@@ -40,9 +40,9 @@ pub mut:
 	mode               int  = consts.radius_mode_mean // what type of circle radius mode to use
 	integration_width  int  = 48 // width of integration area as fraction of image width
 	integration_height int  = 0 // height of integration area as fraction of image height (0==same as width)
-	black_threshold    f32  = 0.01 // make +ve to get more white, -ve to get more black, range +100%..-100%
+	black_threshold    f64  = 0.01 // make +ve to get more white, -ve to get more black, range +100%..-100%
 	// NB: Make a small +ve number to ensure totally white stays white
-	white_threshold   f32  = 0 // grey/white threshold, 0 == same as black (i.e. binary)
+	white_threshold   f64  = 0 // grey/white threshold, 0 == same as black (i.e. binary)
 	direct_neighbours bool = true // true == 4-connected, false == 8-connected
 	blobs             []shapes.Blob // all detected contours
 	contours          shapes.Blob // the contours buffer

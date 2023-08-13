@@ -229,9 +229,9 @@ pub fn (buffer Buffer) downsize(new_width int) !Buffer {
 		return buffer
 	}
 	// bring width down to new size and re-scale height to maintain aspect ratio
-	width_scale := f32(width) / f32(new_width)
-	new_height := int(f32(height) / width_scale)
-	height_scale := f32(height) / f32(new_height)
+	width_scale := f64(width) / f64(new_width)
+	new_height := int(f64(height) / width_scale)
+	height_scale := f64(height) / f64(new_height)
 	// calculate the kernel size for our average
 	kernel_width := int(math.round(width_scale)) // guaranteed to be >= 1
 	kernel_height := int(math.round(height_scale)) // ..
@@ -243,11 +243,11 @@ pub fn (buffer Buffer) downsize(new_width int) !Buffer {
 	integral := buffer.integrate()
 	mut downsized := new_grey(new_width, new_height)
 	for x in 0 .. new_width {
-		orig_x := int(math.min(x * width_scale, width - 1)) // need int() 'cos width_scale is a f32
+		orig_x := int(math.min(x * width_scale, width - 1)) // need int() 'cos width_scale is a f64
 		orig_x1 := math.max(orig_x - kernel_minus_x, 0)
 		orig_x2 := math.min(orig_x + kernel_plus_x, width - 1)
 		for y in 0 .. new_height {
-			orig_y := int(math.min(y * height_scale, height - 1)) // need int() 'cos height_scale is a f32
+			orig_y := int(math.min(y * height_scale, height - 1)) // need int() 'cos height_scale is a f64
 			orig_y1 := math.max(orig_y - kernel_minus_y, 0)
 			orig_y2 := math.min(orig_y + kernel_plus_y, height - 1)
 			count := (orig_x2 - orig_x1) * (orig_y2 - orig_y1) // how many samples in the integration area
@@ -255,7 +255,7 @@ pub fn (buffer Buffer) downsize(new_width int) !Buffer {
 			// where all but bottom right are *outside* the integration window
 			sum := (integral[orig_y2][orig_x2] + integral[orig_y1][orig_x1]) - (
 				integral[orig_y1][orig_x2] + integral[orig_y2][orig_x1])
-			average := f32(sum) / f32(count)
+			average := f64(sum) / f64(count)
 			downsized.put_pixel(x, y, consts.Colour(consts.MonochromePixel{u8(average)}))!
 		}
 	}
@@ -288,10 +288,10 @@ pub fn (buffer Buffer) blur(kernel_size int) !Buffer {
 		for y in 0 .. height {
 			y1 := math.max(y - kernel_minus, 0)
 			y2 := math.min(y + kernel_plus, height - 1)
-			count := f32((x2 - x1) * (y2 - y1)) // how many samples in the integration area
+			count := f64((x2 - x1) * (y2 - y1)) // how many samples in the integration area
 			// sum = bottom right (x2,y2) + top left (x1,y1) - top right (x2,y1) - bottom left (x1,y2)
 			// where all but bottom right are *outside* the integration window
-			average := f32(integral[y2][x2] + integral[y1][x1] - integral[y1][x2] - integral[y2][x1]) / count
+			average := f64(integral[y2][x2] + integral[y1][x1] - integral[y1][x2] - integral[y2][x1]) / count
 			blurred.put_pixel(x, y, consts.Colour(consts.MonochromePixel{u8(average)}))!
 		}
 	}
@@ -301,10 +301,10 @@ pub fn (buffer Buffer) blur(kernel_size int) !Buffer {
 [params]
 pub struct BinarizeParams {
 	box    consts.Box // if box is all zero the whole image is processed, otherwise just the area within the given box
-	width  f32 = 8.0 // fraction of the source/box width to use as the integration area
-	height f32        // fraction of the source/box height to use as the integration area (0==same as width in pixels)
-	black  f32 = 15.0 // % below the average that is considered to be the black/grey boundary
-	white  f32 = math.max_i16 // % above the average that is considered to be the grey/white boundary
+	width  f64 = 8.0 // fraction of the source/box width to use as the integration area
+	height f64        // fraction of the source/box height to use as the integration area (0==same as width in pixels)
+	black  f64 = 15.0 // % below the average that is considered to be the black/grey boundary
+	white  f64 = math.max_i16 // % above the average that is considered to be the grey/white boundary
 	// white of max_i16 or above means same as black and will yield a binary image
 }
 
@@ -419,11 +419,11 @@ pub fn (buffer Buffer) extract(box consts.Box) !Buffer {
 
 pub struct PixelPart {
 	value consts.MonochromePixel // the value of a neighbour pixel
-	ratio f32 // its contribution to an interpolated pixel
+	ratio f64 // its contribution to an interpolated pixel
 }
 
 // pixel_parts - get the neighbour parts contributions for a pixel at x,y
-pub fn (buffer Buffer) pixel_parts(x f32, y f32) []PixelPart {
+pub fn (buffer Buffer) pixel_parts(x f64, y f64) []PixelPart {
 	//  x,y are fractional so the pixel contributions is a mixture of the 4 pixels around x,y,
 	// the mixture is based on the ratio of the neighbours to include, the ratio of all 4 is 1,
 	// code based on:
@@ -472,21 +472,21 @@ pub fn (buffer Buffer) pixel_parts(x f32, y f32) []PixelPart {
 	pixel_xlyh := buffer.get_pixel(xl, yu) as consts.MonochromePixel
 	pixel_xhyl := buffer.get_pixel(xu, yl) as consts.MonochromePixel
 	pixel_xhyh := buffer.get_pixel(xu, yu) as consts.MonochromePixel
-	ratio_xlyl := (f32(xh) - cx) * (f32(yh) - cy)
-	ratio_xhyl := (cx - f32(xl)) * (f32(yh) - cy)
-	ratio_xlyh := (f32(xh) - cx) * (cy - f32(yl))
-	ratio_xhyh := (cx - f32(xl)) * (cy - f32(yl))
+	ratio_xlyl := (f64(xh) - cx) * (f64(yh) - cy)
+	ratio_xhyl := (cx - f64(xl)) * (f64(yh) - cy)
+	ratio_xlyh := (f64(xh) - cx) * (cy - f64(yl))
+	ratio_xhyh := (cx - f64(xl)) * (cy - f64(yl))
 	return [PixelPart{pixel_xlyl, ratio_xlyl}, PixelPart{pixel_xhyl, ratio_xhyl},
 		PixelPart{pixel_xlyh, ratio_xlyh}, PixelPart{pixel_xhyh, ratio_xhyh}]
 }
 
 // make_pixel - get the interpolated pixel value from buffer at x,y (x and y can be fractional)
-fn (buffer Buffer) make_pixel(x f32, y f32) f32 {
+fn (buffer Buffer) make_pixel(x f64, y f64) f64 {
 	parts := buffer.pixel_parts(x, y)
-	part_xlyl := f32(parts[0].value.val) * parts[0].ratio
-	part_xhyl := f32(parts[1].value.val) * parts[1].ratio
-	part_xlyh := f32(parts[2].value.val) * parts[2].ratio
-	part_xhyh := f32(parts[3].value.val) * parts[3].ratio
+	part_xlyl := f64(parts[0].value.val) * parts[0].ratio
+	part_xhyl := f64(parts[1].value.val) * parts[1].ratio
+	part_xlyh := f64(parts[2].value.val) * parts[2].ratio
+	part_xhyh := f64(parts[3].value.val) * parts[3].ratio
 	return part_xlyl + part_xhyl + part_xlyh + part_xhyh
 }
 
@@ -497,7 +497,7 @@ fn (buffer Buffer) make_pixel(x f32, y f32) f32 {
 // each source pixel is considered to consist of scale * scale sub-pixels, each destination pixel
 // is one sub-pixel and is constructed from an interpolation of a 1x1 source pixel area centred on
 // the sub-pixel
-pub fn (buffer Buffer) upsize(scale f32) !Buffer {
+pub fn (buffer Buffer) upsize(scale f64) !Buffer {
 	if scale <= 1.0 {
 		return buffer
 	}
@@ -506,9 +506,9 @@ pub fn (buffer Buffer) upsize(scale f32) !Buffer {
 	height := int(math.round(max_y * scale))
 	mut upsized := new_grey(width, height)
 	for dest_x in 0 .. width {
-		src_x := f32(dest_x) / scale
+		src_x := f64(dest_x) / scale
 		for dest_y in 0 .. height {
-			src_y := f32(dest_y) / scale
+			src_y := f64(dest_y) / scale
 			pixel := buffer.make_pixel(src_x, src_y)
 			upsized.put_pixel(dest_x, dest_y, consts.Colour(consts.MonochromePixel{u8(pixel)}))!
 		}
@@ -561,7 +561,7 @@ pub fn (buffer Buffer) line(from_here consts.Point, to_there consts.Point, colou
 }
 
 // circle - draw a circle in the given colour, returns a modified buffer (colourised as required)
-pub fn (buffer Buffer) circle(origin consts.Point, radius f32, colour consts.Colour) !Buffer {
+pub fn (buffer Buffer) circle(origin consts.Point, radius f64, colour consts.Colour) !Buffer {
 	mut circled := buffer.in_colour(colour) // colourize iff required
 	if radius < 1 {
 		// too small for a circle, do a point instead

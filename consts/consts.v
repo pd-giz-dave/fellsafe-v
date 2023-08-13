@@ -7,14 +7,17 @@ import math
 // History:
 // 18/04/23 DCN: Created by copying and re-implementing const.py from the kilo-codes Python prototype
 
+// Float - the floating point size we want to use
+pub type Float = f32
+
 // Empty - use in a sum type when an option is 'nothing'
 pub struct Empty {}
 
 // Point is the x,y co-ordinates of a pixel in some image (the co-ordinates may be fractional)
 pub struct Point {
 pub:
-	x f32 // < 0 means 'empty'
-	y f32
+	x Float // < 0 means 'empty'
+	y Float
 }
 
 // Line is a straight line identified by its start and end co-ordinates
@@ -95,8 +98,8 @@ const blur_kernel_size = 3 // 0==do not blur, helps in dropping large numbers of
 // these control the contour detection, for big targets that cover the whole image a bigger
 // integration area is required (i.e. smaller image fraction), this is used for testing print images
 struct Proximity {
-	box_size    int // size of integration box when binarizing as a fraction of the image width
-	black_level f32 // % below the average considered to be black
+	box_size    int   // size of integration box when binarizing as a fraction of the image width
+	black_level Float // % below the average considered to be black
 }
 
 const (
@@ -106,10 +109,11 @@ const (
 
 // Blob circle radius modes
 pub const (
+	radius_mode_none    = 0 // *MUST* be zero
 	radius_mode_inside  = 1
 	radius_mode_mean    = 2
 	radius_mode_outside = 3
-	radius_modes        = 3 // count of the number of modes
+	radius_modes        = 4 // count of the number of modes
 )
 
 // Reject codes for blobs being ignored
@@ -145,8 +149,13 @@ pub const (
 )
 
 // is_empty - test if a point is empty
-fn (p Point) is_empty() bool {
-	return !(p.x > f32(math.min_i16))
+pub fn (p Point) is_empty() bool {
+	return !(p.x > Float(math.min_i16))
+}
+
+// empty_point - return an empty point
+pub fn empty_point() Point {
+	return Point{Float(math.min_i16), Float(math.min_i16)}
 }
 
 // str - format a point in a concise and consistent way

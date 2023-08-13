@@ -69,7 +69,7 @@ fn test_binarize() {
 }
 
 fn test_extract() {
-	pixel_value := fn (x f32, y f32) consts.Colour {
+	pixel_value := fn (x f64, y f64) consts.Colour {
 		return consts.MonochromePixel{u8((int(x) * 16) + int(y))}
 	}
 	full_width, full_height := 8, 8 // product must be <256, each must be power of 2
